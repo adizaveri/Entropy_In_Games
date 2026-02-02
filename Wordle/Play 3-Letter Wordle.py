@@ -86,12 +86,34 @@ def play_wordle():
     # Uncomment below to debug with a known word
     # print(f"[DEBUG] Secret word: {secret}")
     moves = 0
+    all_guesses = []
+    all_feedbacks = []
     while True:
         guess = input(f"\nEnter your guess #{moves+1} (3-letter word): ").lower().strip()
+        if guess == "debug101":
+            print(f"[DEBUG] Solution word: {secret}")
+            # Collect all greyed out letters and info gained
+            grey_letters = set()
+            info_letters = set()
+            for g, fb in zip(all_guesses, all_feedbacks):
+                for idx, val in enumerate(fb):
+                    if val == 0:
+                        grey_letters.add(g[idx])
+                    elif val == 1 or val == 2:
+                        info_letters.add(g[idx])
+            print(f"Greyed out letters (not in solution): {sorted(grey_letters)}")
+            print(f"Information gained (yellow/green letters): {sorted(info_letters)}")
+            print(f"All guesses and feedback:")
+            for g, fb in zip(all_guesses, all_feedbacks):
+                fb_str = ''.join(['🟩' if x==2 else '🟨' if x==1 else '⬜' for x in fb])
+                print(f"  {g}: {fb_str}")
+            continue
         if len(guess) != 3 or guess not in GUESSES:
             print("Invalid guess. Please enter a valid 3-letter word from the allowed list.")
             continue
         fb = score_feedback(guess, secret)
+        all_guesses.append(guess)
+        all_feedbacks.append(fb)
         moves += 1
         # Print feedback in Wordle style
         fb_str = ''.join(['🟩' if x==2 else '🟨' if x==1 else '⬜' for x in fb])
